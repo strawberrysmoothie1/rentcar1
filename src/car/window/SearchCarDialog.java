@@ -83,13 +83,13 @@ public class SearchCarDialog extends JDialog {
         btnModify = new JButton("수정하기");
         btnDelete = new JButton("삭제하기");
         btnResReg = new JButton("렌터카 예약하기");
-        btnFavor = new JButton("즐겨찾기");
+        btnFavor = new JButton("즐겨찾기 목록");
      
         btnReg.addActionListener(new CarBtnHandler()); // 렌터카 등록 버튼에 차량 버튼 핸들러 등록
         btnModify.addActionListener(new CarBtnHandler()); // 수정 버튼에 차량 버튼 핸들러 등록
         btnDelete.addActionListener(new CarBtnHandler()); // 삭제 버튼에 차량 버튼 핸들러 등록
         btnResReg.addActionListener(new ResBtnHandler()); // 렌터카 예약 버튼에 예약 버튼 핸들러 등록
-        btnFavor.addActionListener(new FavorBtnHandler()); // 좋아요 버튼에 예약 버튼 핸들러 등록
+        btnFavor.addActionListener(new CarBtnHandler()); // 좋아요 버튼에 예약 버튼 핸들러 등록
 
         // 버튼 패널에 버튼 추가
         panelBtn.add(btnReg);
@@ -107,7 +107,7 @@ public class SearchCarDialog extends JDialog {
 		carTable.setModel(rentTableModel);
         add(new JScrollPane(carTable), BorderLayout.CENTER);
 
-        setLocation(300, 100); // 다이얼로그 위치 설정
+        setLocation(200, 100); // 다이얼로그 위치 설정
         setSize(600, 600); // 다이얼로그 크기 설정
         setModal(true); // 다이얼로그가 모달로 표시되도록 설정 (부모 창 위에 항상 표시)
         setVisible(true); // 다이얼로그 표시
@@ -135,7 +135,6 @@ public class SearchCarDialog extends JDialog {
         } else {
             message("조회한 정보가 없습니다."); // 메시지 표시
             carItems = new Object[10][10]; // 빈 데이터 배열 생성
-
             rentTableModel = new RentTableModel(carItems, columnNames); // 테이블 모델 객체 생성
             carTable.setModel(rentTableModel); // 테이블 모델 설정
         }
@@ -155,7 +154,7 @@ public class SearchCarDialog extends JDialog {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == btnSearch) {
+        	if (e.getSource() == btnSearch) {
                 // 조회하기 버튼이 클릭된 경우
                 String carNumber = tf.getText().trim(); // 입력된 차량 번호 가져오기
                 carList = new ArrayList<CarVO>();
@@ -177,6 +176,21 @@ public class SearchCarDialog extends JDialog {
                 }
                 return;
 
+            } else if (e.getSource() == btnFavor)  {
+                // 즐겨찾기 버튼이 클릭된 경우
+                carList = new ArrayList<CarVO>();
+                CarVO carVO = new CarVO();                             
+                carList = carController.listCarInfo(carVO);
+                // 즐겨찾기 차량만 필터링
+                List<CarVO> favoriteCars = new ArrayList<>();
+                for (CarVO car : carList) {
+                    if ("★".equals(car.getCarFavorites())) {
+                        favoriteCars.add(car);
+                    }
+                }
+                loadTableData(favoriteCars); // 테이블에 모든 차량 정보 표시
+                
+                return;
             } else if (e.getSource() == btnDelete) {
                 carNumber = (String) carItems[rowIdx][0];
                 carName = (String) carItems[rowIdx][1];
@@ -197,9 +211,8 @@ public class SearchCarDialog extends JDialog {
                 carFavorites = (String) carItems[rowIdx][5];
                 CarVO carVO = new CarVO(carNumber, carName, carColor, carSize, carMaker, carFavorites);
 
-                carController.modCarInfo(carVO);
-
-            }       
+                new ModifyCarDialog(carController, carVO, "차량 수정창");
+            } 
             else if(e.getSource() == btnReg) {            	
                 new RegCarDialog(carController, "차량 등록창");
                 return;
@@ -214,34 +227,7 @@ public class SearchCarDialog extends JDialog {
 
     }// end CarBtnHandler
     
-    class FavorBtnHandler implements ActionListener {
-        // 필드 변수 선언
-        String carNumber = null, carName = null, carColor = null, carMaker = null, carFavorites = null;
-        int carSize = 0;
-        List<CarVO> carList = null;
-        // actionPerformed 메서드 오버라이딩: 액션 이벤트 처리
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // 이벤트 소스가 btnResReg인 경우에만 실행
-            if(e.getSource() == btnFavor) {       	
-            	carNumber = tf.getText().trim();
-
-            	//여기서 오류
-            	carFavorites = (String) carItems[rowIdx][5];
-
-            	new FavorCarDialog(carController, carNumber, carFavorites,"즐겨찾기 등록창");
-            	// 다이얼로그를 닫음
-                dispose();
-                new SearchCarDialog(carController, "차 정보 조회");
-
-            }         
-        }     
-    }
-    
-    
-    
     // 예약 버튼 핸들러 클래스
- // ResBtnHandler 클래스 정의: ActionListener 인터페이스를 구현하여 액션 이벤트 처리를 위한 클래스
     class ResBtnHandler implements ActionListener {
         // 필드 변수 선언
         String carNumber = null, carName = null, carColor = null, carMaker = null, carFavorites = null;
@@ -256,23 +242,10 @@ public class SearchCarDialog extends JDialog {
             	carNumber = tf.getText().trim();
                 // 콘솔에 차번호 출력
                 System.out.println("차번호 : " + carNumber);                
-                // 선택된 행의 차량 정보 가져오기
-                //carName = (String) carItems[rowIdx][1]; // 차량명
-               // carColor = (String) carItems[rowIdx][2]; // 차색상
-               // carSize = Integer.parseInt((String) carItems[rowIdx][3]); // 배기량
-               // carMaker = (String) carItems[rowIdx][4]; // 차제조사
-                // 새로운 CarVO 객체 생성하여 차량 정보 저장
-               //CarVO carVO = new CarVO(carNumber, carName, carColor, carSize, carMaker);
-                // 새로운 RegResDialog 객체 생성 및 차번호 전달
                 new RegResDialog(carNumber);
             }         
         }     
     }
-
-    
-    //수정해야됨
-
-
     // 테이블의 행 클릭 시 이벤트 처리
     class ListRowSelectionHandler implements ListSelectionListener {
 
@@ -286,12 +259,10 @@ public class SearchCarDialog extends JDialog {
             }
         }
     }
-
     // 테이블의 열 클릭 시 이벤트 처리
     class ListColSelectionHandler implements ListSelectionListener {
 
         @Override
-
 		public void valueChanged(ListSelectionEvent e) {
 			ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 			colIdx = lsm.getMinSelectionIndex();
@@ -299,10 +270,6 @@ public class SearchCarDialog extends JDialog {
 				System.out.println(rowIdx + " 번째 행, " + colIdx + "열 선택됨...");
 //			System.out.println(carData[rowIdx][colIdx]);
 			}
-		}
-        
-        
-
+		}       
 	}
-
 }

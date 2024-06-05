@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -19,107 +18,69 @@ import javax.swing.JTextField;
 
 import common.RentTableModel;
 import res.controller.ResController;
-import res.controller.ResControllerImpl;
 import res.VO.ResVO;
 
-public class RegResDialog  extends JDialog{
+public class ModifyRegDialog  extends JDialog{
 	JPanel jPanel;
 	JLabel lResNum, lResCarNum, lResDate,lUseBeginDate,
 	lReturnDate, lResUserId, lResUse;
-	
-	JTextField tfResNum, tfResCarNum, tfResDate, tfUseBeginDate,
+	JTextField tfResNum,tfResCarNum, tfResDate, tfUseBeginDate,
 	tfReturnDate, tfResUserId, tfResUse;
   JButton btnResReg;
   
   ResController resController;
-	JTable rentTable;
-	RentTableModel rentTableModel;
-
-
-	Object[][] memData = null; // 테이블에 표시될 회원 정보 저장 2차원 배열
-	int rowIdx = 0, colIdx = 0; // 테이블 수정 시 선택한 행과 열 인덱스 저장
-
-	String carNumber;  //렌터카 조회 화면에서 예약 버튼 클릭 시 넘어온 예약차번호 저장  
-	
-	public RegResDialog(String carNumber) {
-		this(new ResControllerImpl(), carNumber, "렌터카 예약창");
-	    String nowTime = getCurrentDate();
-	  	init(nowTime);
-	}
+  ResVO resVO;
+  ResVO newresVO;
   
-  public RegResDialog(ResController resController, String str) {
+  public ModifyRegDialog(ResController resController, ResVO resVO, String str) {
   	this.resController = resController;
+  	this.resVO = resVO;
   	setTitle(str);
-    // 현재 시간을 YYYY-MM-DD 형식의 문자열로 저장
-    String nowTime = getCurrentDate();
-  	init(nowTime);
-  }
-  
-  public RegResDialog(ResController resController, String carNumber, String str) {
-  	this.resController = resController;
-  	this.carNumber = carNumber;
-  	setTitle(str);
-    // 현재 시간을 YYYY-MM-DD 형식의 문자열로 저장
-    String nowTime = getCurrentDate();
-  	init(nowTime);
+  	init();
   }
 
-  // 현재 날짜를 가져와서 YYYY-MM-DD 형식의 문자열로 반환하는 메서드
-  private String getCurrentDate() {
-      LocalDate currentDate = LocalDate.now(); // 현재 날짜 가져오기
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 포맷 지정
-      return currentDate.format(formatter); // 포맷에 맞게 문자열 반환
-  }
   
-  private void init(String nowTime) {
-	  
-	List<ResVO> resList = resController.listResInfo(new ResVO());
-	int newResNum = 0;
-	int resSize = resList.size();
-	if(resSize != 0) {
-  	ResVO resVO = resList.get(resSize-1);
-  	String ResNum = resVO.getResNumber();
-  	newResNum = Integer.parseInt(ResNum);
-	}
+  private void init() {
   	lResNum = new JLabel("예약번호");
   	lResCarNum = new JLabel("예약차번호");
   	lResDate= new JLabel("예약날짜");
   	lUseBeginDate = new JLabel("렌터카사용시작일자");
   	lReturnDate = new JLabel("렌터카반납일자");
   	lResUserId = new JLabel("예약자아이디");
-  	
-  	
-  	tfResNum = new JTextField(String.valueOf(newResNum + 1));
-  	tfResNum.setEditable(false);
+  	lResUse = new JLabel("사용여부");
+  	 	
+  	tfResNum = new JTextField(20);
   	tfResCarNum = new JTextField(20);
-  	tfResDate = new JTextField(nowTime);
-  	tfResDate.setEditable(false);
+  	tfResDate = new JTextField(20);
   	tfUseBeginDate = new JTextField(20);
   	tfReturnDate = new JTextField(20);
   	tfResUserId = new JTextField(20);
+  	tfResUse = new JTextField(20);
+
   	
-  	if(carNumber != null && carNumber.length() != 0 ) {  //차량 조회 화면에서 예약 시 차번호를 미리 표시합니다.
-  		tfResCarNum.setText(carNumber);
-  		tfResCarNum.setEditable(false);;
-  	}
-  	
-  	
-  	
-  	btnResReg=new JButton("등록하기");
+  	tfResNum.setText(resVO.getResNumber());
+  	tfResNum.setEditable(false);
+  	tfResCarNum.setText(resVO.getResCarNumber());
+  	tfResDate.setText(resVO.getResDate());
+  	tfUseBeginDate.setText(resVO.getUseBeginDate());
+  	tfReturnDate.setText(resVO.getReturnDate());
+  	tfResUserId.setText(resVO.getResUserId());
+  	tfResUse.setText(resVO.getResUse());
+
+
+  	btnResReg=new JButton("예약정보 수정하기");
   	btnResReg.addActionListener(new ActionListener(){
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				
+			public void actionPerformed(ActionEvent e) {			
 				String resNum = tfResNum.getText().trim();
 				String resCarNum = tfResCarNum.getText().trim();
 				String resDate = tfResDate.getText().trim();
 				String useBeginDate = tfUseBeginDate.getText().trim();
 				String returnDate = tfReturnDate.getText().trim();
 				String resUserId = tfResUserId.getText().trim();
-				String resUse = "대기";
-		
-			
+				String resUse = tfResUse.getText().trim();
+
+							
 				String resDate1 = resDate.replace("-", "");
 		        int IntResDate = Integer.parseInt(resDate1);
 				
@@ -138,20 +99,14 @@ public class RegResDialog  extends JDialog{
 		        	return;
 		        }
 		        
-				System.out.println(resDate);
+				System.out.println(resNum + ", " + resCarNum + ", " + resDate + ", " +
+				useBeginDate + ", " + returnDate + ", " +resUserId + ", "+ resUse);
 				
-				ResVO resVO=new ResVO(resNum, resCarNum, resDate, useBeginDate,
-						returnDate, resUserId, resUse);
-				resController.regResInfo(resVO);
-				System.out.println(resVO.getResDate());
+				newresVO = new ResVO(resNum, resCarNum, resDate,
+						useBeginDate, returnDate, resUserId, resUse);
+				resController.modResInfo(newresVO);
 				
-				showMessage("새 예약을 등록했습니다.");
-				tfResNum.setText("");
-				tfResCarNum.setText("");
-				tfResDate.setText("");
-				tfUseBeginDate.setText("");
-				tfReturnDate.setText("");
-				tfResUserId.setText("");
+				showMessage("예약정보를 수정했습니다.");
 				dispose();	
 			}
       });

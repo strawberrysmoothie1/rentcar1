@@ -15,6 +15,4 @@ public List<CarVO> selectCarInfo(CarVO carVO) throws SQLException, ClassNotFound
 	
 	public void deleteCarInfo(CarVO carVO) throws SQLException, ClassNotFoundException;
 	
-    public void updateFavorite(String carNumber, String newFavor) throws SQLException, ClassNotFoundException;
-
 }

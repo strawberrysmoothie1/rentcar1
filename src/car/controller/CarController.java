@@ -14,7 +14,5 @@ public interface CarController {
 	public void modCarInfo(CarVO carVO) ;
 	
 	public void removeCarInfo(CarVO carVO) ;
-
-	public void updateFavorite(String carNumber, String newFavor) ;
+	
 }
-

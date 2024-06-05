@@ -1,6 +1,9 @@
 package member.VO;
 
-public class MemberVO {
+import java.io.Serializable;
+
+public class MemberVO implements Serializable {
+    private static final long serialVersionUID = 1L;
 	// 필드 선언
 	private String memId;
 	private String memPassword;
@@ -58,9 +61,6 @@ public class MemberVO {
 	public void setMemPhoneNum(String memPhoneNum) {
 		this.memPhoneNum = memPhoneNum;
 	}
-	
-	
-	
 	
 	
 	

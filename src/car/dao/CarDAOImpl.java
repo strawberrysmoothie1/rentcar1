@@ -81,13 +81,4 @@ public class CarDAOImpl extends AbstractBaseDAO implements CarDAO {
         pstmt.executeUpdate();
     }
 
-    // 즐겨찾기 정보 업데이트 메서드
-    @Override
-    public void updateFavorite(String carNumber, String newFavor) throws SQLException, ClassNotFoundException {
-        pstmt = conn.prepareStatement("UPDATE t_Car SET carFavorites = ? WHERE carNumber = ?");
-
-        pstmt.setString(1, newFavor);
-        pstmt.setString(2, carNumber);
-        pstmt.executeUpdate();
-    }
 }

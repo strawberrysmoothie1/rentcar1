@@ -4,45 +4,37 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import common.RentTableModel;
+
 import member.controller.MemberController;
-import member.controller.MemberControllerImpl;
-import member.exception.MemberException;
 import member.VO.MemberVO;
 
-public class RegMemDialog  extends JDialog{
+public class ModifyMemDialog  extends JDialog{
 	JPanel jPanel;
 	JLabel lId,lName,lPassword,lAddress,lPhoneNum;
 	JTextField tfId,tfName,tfPassword,tfAddress,tfPhoneNum ;
-  JButton btnReg;
+    JButton btnMemModify;
   
-  MemberController memberController;
-  String[][] memItems = new String[0][5];;
-	JTable rentTable;
-	RentTableModel rentTableModel;
-	String[] columnNames = { "아이디", "비밀번호", "이름", "주소", "전화번호" };
-
-	Object[][] memData = null; // 테이블에 표시될 회원 정보 저장 2차원 배열
-	int rowIdx = 0, colIdx = 0; // 테이블 수정 시 선택한 행과 열 인덱스 저장
-
+    MemberController memberController;
+    MemberVO memVO;
+    MemberVO newMemVO;
   
-  public RegMemDialog(MemberController memberController, String str) {
+  public ModifyMemDialog(MemberController memberController, MemberVO memVO, String str) {
   	this.memberController = memberController;
+  	this.memVO = memVO;
   	setTitle(str);
   	init();
   }
   
-  private void init() {
+
+private void init() {
   	lId = new JLabel("아이디");
   	lPassword = new JLabel("비밀번호");
   	lName= new JLabel("이름");
@@ -56,9 +48,16 @@ public class RegMemDialog  extends JDialog{
   	tfAddress=new JTextField(20);
   	tfPhoneNum=new JTextField(20);
   	
-  	btnReg=new JButton("회원등록하기");
+  	tfId.setText(memVO.getMemId());
+  	tfId.setEditable(false);
+	tfPassword.setText(memVO.getMemPassword());
+	tfName.setText(memVO.getMemName());
+	tfAddress.setText(memVO.getMemAddress());
+	tfPhoneNum.setText(memVO.getMemPhoneNum());
   	
- 	 	btnReg.addActionListener(new ActionListener(){
+  	btnMemModify=new JButton("회원정보 수정하기");
+  	
+ 	 	btnMemModify.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String id=tfId.getText().trim();
@@ -66,18 +65,12 @@ public class RegMemDialog  extends JDialog{
 				String  name=tfName.getText().trim();
 				String address=tfAddress.getText().trim();
 				String phoneNum=tfPhoneNum.getText().trim();
-				MemberVO memVO=new MemberVO(id, password, name, address, phoneNum);
+				newMemVO=new MemberVO(id, password, name, address, phoneNum);
 				
-				memberController.regMember(memVO);
+				memberController.modMember(newMemVO);
 				
-				showMessage("새 회원을 등록했습니다.");
-				tfId.setText("");
-				tfPassword.setText("");
-				tfName.setText("");
-				tfAddress.setText("");
-				tfPhoneNum.setText("");
-				
-				//dispose();
+				showMessage("회원정보를 수정했습니다.");				
+				dispose();
 				
 			}
       });
@@ -100,10 +93,10 @@ public class RegMemDialog  extends JDialog{
   	jPanel.add(tfPhoneNum);
   	
   	add(jPanel,BorderLayout.NORTH);
-  	add(btnReg,BorderLayout.SOUTH);
+  	add(btnMemModify,BorderLayout.SOUTH);
   	
-      setLocation(300, 200);
-      setSize(400,400);
+      setLocation(300, 300);
+      setSize(400,200);
       setModal(true); //항상 부모창 위에 보이게 합니다.
       setVisible(true);
   }

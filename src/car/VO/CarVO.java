@@ -1,6 +1,9 @@
 package car.VO;
 
-public class CarVO {
+import java.io.Serializable;
+
+public class CarVO  implements Serializable {
+    private static final long serialVersionUID = 1L;
 	private String carNumber;
 	private String carName;
 	private String carColor;
@@ -59,7 +62,6 @@ public class CarVO {
 		this.carMaker = carMaker;
 	}
 	
-	
 	public String getCarFavorites() {
 		return carFavorites;
 	}
@@ -67,8 +69,6 @@ public class CarVO {
 	public void setCarFavorites(String carFavorites) {
 		this.carFavorites = carFavorites;
 	}
-
-	
 	
 	
 

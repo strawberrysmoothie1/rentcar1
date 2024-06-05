@@ -56,6 +56,6 @@ public class RentTableModel extends AbstractTableModel {
 
     // columnEditables 배열: 각 열의 편집 가능 여부를 저장하는 배열
     boolean[] columnEditables = new boolean[] {
-        false, true, true, true, true
+        false, true, true, true, true, true, true
     };
 }

@@ -63,7 +63,7 @@ public class SearchMemDialog extends JDialog {
 		panelBtn = new JPanel();
 
 		lMemName = new JLabel("이름");
-		tf = new JTextField("회원 이름을 입력하세요");
+		tf = new JTextField(10);
 		btnSearch = new JButton("조회하기");
 		btnSearch.addActionListener(new MemberBtnHandler());
 
@@ -90,7 +90,7 @@ public class SearchMemDialog extends JDialog {
 		memTable.setModel(rentTableModel);
 		add(new JScrollPane(memTable), BorderLayout.CENTER);
 
-		setLocation(300, 100);// 다이얼로그 출력 위치를 정한다.
+		setLocation(200, 100);// 다이얼로그 출력 위치를 정한다.
 		setSize(600, 600);
 		setModal(true); // 항상 부모창 위에 보이게 한다.
 		setVisible(true);
@@ -168,21 +168,20 @@ public class SearchMemDialog extends JDialog {
 				memPhoneNum = (String) memItems[rowIdx][4];
 				MemberVO memVO = new MemberVO(memId, memPassword, memName, memAddress, memPhoneNum);
 
-				memberController.modMember(memVO);
+				new ModifyMemDialog(memberController, memVO, "회원 수정창");
+				
 			} else if (e.getSource() == btnReg) {
 					new RegMemDialog(memberController, "회원 등록창");
 					return;
 			}
-
 			List<MemberVO> memList = new ArrayList<MemberVO>();
 			MemberVO memVO = new MemberVO();
 			memList = memberController.listMember(memVO);
 			loadTableData(memList);
-
-		} // end actionPerformed
-
+		}// end actionPerformed
+		
 	}// end MemberBtnHandler
-
+	
 	// 테이블의 행 클릭 시 이벤트 처리
 	class ListRowSelectionHandler implements ListSelectionListener {
 

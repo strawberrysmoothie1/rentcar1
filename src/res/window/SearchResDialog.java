@@ -19,6 +19,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import common.RentTableModel;
+import member.window.ModifyMemDialog;
 import res.controller.ResController;
 import res.VO.ResVO;
 
@@ -33,15 +34,16 @@ public class SearchResDialog extends JDialog {
 
 	JTable resTable;
 	RentTableModel rentTableModel;
-	String[] columnNames = { "예약번호", "예약차번호", "예약일자", "렌터카이용시작일자", "렌터카반납일자", "예약자아이디" };
+	String[] columnNames = { "예약번호", "예약차번호", "예약일자", "렌터카이용시작일자", "렌터카반납일자", "예약자아이디", "사용여부" };
 
-	Object[][] resItems = new String[0][6]; // 테이블에 표시될 회원 정보 저장 2차원 배열
+	Object[][] resItems = new String[0][7]; // 테이블에 표시될 회원 정보 저장 2차원 배열
 	int rowIdx = 0, colIdx = 0; // 테이블 수정 시 선택한 행과 열 인덱스 저장
 
 	ResController resController;
 
 	public SearchResDialog(ResController resController, String str) {
 		this.resController = resController;
+		
 		setTitle(str);
 		init();
 
@@ -62,7 +64,7 @@ public class SearchResDialog extends JDialog {
 
 		lResNumber = new JLabel("예약번호");
 	
-		tfResNumber = new JTextField("예약번호를 입력하세요");
+		tfResNumber = new JTextField(10);
 		btnResSearch = new JButton("조회하기");
 		btnResSearch.addActionListener(new ResBtnHandler());
 
@@ -89,7 +91,7 @@ public class SearchResDialog extends JDialog {
 		resTable.setModel(rentTableModel);
 		add(new JScrollPane(resTable), BorderLayout.CENTER);
 
-		setLocation(300, 100);// 다이얼로그 출력 위치를 정한다.
+		setLocation(200, 100);// 다이얼로그 출력 위치를 정한다.
 		setSize(600, 600);
 		setModal(true); // 항상 부모창 위에 보이게 한다.
 		setVisible(true);
@@ -97,7 +99,7 @@ public class SearchResDialog extends JDialog {
 
 	private void loadTableData(List<ResVO> resList) {
 		if (resList != null && resList.size() != 0) {
-			resItems = new String[resList.size()][6];
+			resItems = new String[resList.size()][7];
 			for (int i = 0; i < resList.size(); i++) {
 				ResVO resVO = resList.get(i);
 				resItems[i][0] = resVO.getResNumber();
@@ -106,6 +108,7 @@ public class SearchResDialog extends JDialog {
 				resItems[i][3] = resVO.getUseBeginDate();
 				resItems[i][4] = resVO.getReturnDate();
 				resItems[i][5] = resVO.getResUserId();
+				resItems[i][6] = resVO.getResUse();
 			}
 
 			rentTableModel = new RentTableModel(resItems, columnNames);
@@ -123,7 +126,8 @@ public class SearchResDialog extends JDialog {
 	}
 
 	class ResBtnHandler implements ActionListener {
-		String resNumber = null, resCarNumber = null, resDate = null, useBeginDate = null, returnDate = null, resUserId = null;
+		String resNumber = null, resCarNumber = null, resDate = null, 
+				useBeginDate = null, returnDate = null, resUserId = null, resUse = null;
 		List<ResVO> resList = null;
 
 		@Override
@@ -156,7 +160,9 @@ public class SearchResDialog extends JDialog {
 				useBeginDate = (String) resItems[rowIdx][3];
 				returnDate = (String) resItems[rowIdx][4];
 				resUserId = (String) resItems[rowIdx][5];
-				ResVO resVO = new ResVO(resNumber, resCarNumber, resDate, useBeginDate, returnDate, resUserId);
+				resUse = (String) resItems[rowIdx][6];
+				ResVO resVO = new ResVO(resNumber, resCarNumber, resDate,
+						useBeginDate, returnDate, resUserId, resUse);
 
 				resController.cancelResInfo(resVO);
 
@@ -167,10 +173,13 @@ public class SearchResDialog extends JDialog {
 				useBeginDate = (String) resItems[rowIdx][3];
 				returnDate = (String) resItems[rowIdx][4];
 				resUserId = (String) resItems[rowIdx][5];
-				ResVO resVO = new ResVO(resNumber, resCarNumber, resDate, useBeginDate, returnDate, resUserId);
-
-				resController.modResInfo(resVO);
+				resUse = (String) resItems[rowIdx][6];
+				ResVO resVO = new ResVO(resNumber, resCarNumber, resDate,
+						useBeginDate, returnDate, resUserId, resUse);
+				
+				new ModifyRegDialog(resController, resVO, "예약 수정창");
 			} else if(e.getSource() == btnResReg) {
+				
 				new RegResDialog(resController, "예약 등록창");
 				return;
 			}
@@ -180,7 +189,7 @@ public class SearchResDialog extends JDialog {
 			resList = resController.listResInfo(resVO);
 			loadTableData(resList);
 
-		} // end actionPerformed
+		} // end actionPerformedb
 
 	}// end MemberBtnHandler
 
